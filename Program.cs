@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text.Json;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -173,7 +172,11 @@ class Program
             @class = cssClass
         };
 
-        Console.WriteLine(JsonSerializer.Serialize(output));
+        string escapedTooltip = tooltip.Replace("\n", "\\n").Replace("\"", "\\\"");
+        string escapedText = text.Replace("\"", "\\\"");
+        string jsonOutput = $"{{\"text\":\"{escapedText}\",\"alt\":\"{currentState.ToLower()}\",\"tooltip\":\"{escapedTooltip}\",\"class\":\"{cssClass}\"}}";
+
+        Console.WriteLine(jsonOutput);
     }
 
     static string GetCountryCode(string region)

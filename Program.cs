@@ -30,8 +30,30 @@ class Program
         {"smart", "SMART"}
     };
 
-    static void Main()
+    static void Main(string[] args)
     {
+        if (args.Length > 0)
+        {
+            foreach (string arg in args)
+            {
+                switch(arg)
+                {
+                    case "--toggle":
+                        HandleToggle();
+                        return;
+                    default:
+                        Console.WriteLine($"Unknown argument: {arg}");
+                        return;
+                }
+            }
+        }
+
+        HandleMonitoring();
+    }
+
+    static void HandleMonitoring()
+    {
+
         var stateProcess = StartProcess("expressvpnctl", "monitor connectionstate");
         var regionProcess = StartProcess("expressvpnctl", "monitor region");
 
@@ -65,6 +87,39 @@ class Program
         Thread.Sleep(Timeout.Infinite);
     }
 
+    static void HandleToggle()
+    {
+        string output = RunCommand("expressvpnctl", "status");
+
+        if (output.TrimStart().StartsWith("Connected", StringComparison.OrdinalIgnoreCase))
+        {
+            RunCommand("expressvpnctl", "disconnect");
+        }
+        else
+        {
+            RunCommand("expressvpnctl", "connect");
+        }
+    }
+
+    static string RunCommand(string fileName, string arguments)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                UseShellExecute = false
+            }
+        };
+        process.Start();
+        string output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        return output;
+    }
+
     static Process StartProcess(string fileName, string arguments)
     {
         var process = new Process
@@ -91,7 +146,12 @@ class Program
         if (currentState == "Connected")
         {
             text = $"<span size='14000'></span> {GetCountryCode(currentRegion)}";
-            tooltip += $"\nRegion: {currentRegion}";
+
+            string displayRegion = string.IsNullOrEmpty(currentRegion) 
+                ? currentRegion 
+                : char.ToUpper(currentRegion[0]) + currentRegion.Substring(1);
+            tooltip += $"\nRegion: {displayRegion}";
+            
             cssClass = "good";
         }
         else if (currentState == "Disconnected" || currentState == "Disconnecting")
@@ -120,9 +180,9 @@ class Program
     {
         if (string.IsNullOrWhiteSpace(region)) return "???";
 
-        if (CountryCodes.TryGetValue(region, out string code))
+        if (CountryCodes.TryGetValue(region, out string? code))
         {
-            return code;
+            return code ?? "???";
         }
 
         // fallback

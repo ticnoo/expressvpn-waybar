@@ -13,5 +13,3 @@ if [ -z "$PROJECT_FILE" ]; then
 fi
 
 dotnet publish "$PROJECT_FILE" -r linux-x64 $FLAGS_x64 -o "$OUTPUT_DIR/linux-x64"
-
-sudo cp -f "$OUTPUT_DIR/linux-x64/expressvpn-waybar" /usr/local/bin/

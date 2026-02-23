@@ -3,12 +3,24 @@
 git clone https://github.com/ticnoo/expressvpn-waybar.git
 ```
 
+# build
+
 ```bash
-./build-and-install.sh
+./build.sh
 ```
 ```bash
 which expressvpn-waybar
 ```
-```bash
-l /usr/local/bin/expressvpn-waybar
+
+# Usage
+
+```conf
+"custom/expressvpn": {
+		"tooltip": true,
+        "return-type": "json",
+        "format": "{}",
+		"exec": "expressvpn-waybar",
+        "on-click": "expressvpn-waybar --toggle",
+        "on-click-right": "/opt/expressvpn/bin/expressvpn-client &"
+    },
 ```
